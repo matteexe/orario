@@ -87,7 +87,7 @@ def leggi_pdf_orario(percorso):
                                 "classe":classe,
                                 "giorno":giorno,
                                 "ora":ora,
-                                "matera":materia,
+                                "materia":materia,
                                 "docente":docente,
                                 "compresenza1":doc_comp if doc_comp else "no",
                                 "aula":aula
@@ -99,7 +99,7 @@ def leggi_pdf_orario(percorso):
                                     "classe":classe,
                                     "giorno":giorno,
                                     "ora":ora-1,
-                                    "matera":materia,
+                                    "materia":materia,
                                     "docente":docente,
                                     "compresenza1":doc_comp if doc_comp else "no",
                                     "aula":aula
@@ -131,8 +131,8 @@ def genera_xml(lezioni):
                 n=ET.SubElement(nodo_lez,"ora")
                 n.text=str(l["ora"])
 
-                n=ET.SubElement(nodo_lez,"matera")
-                n.text=l["matera"]
+                n=ET.SubElement(nodo_lez,"materia")
+                n.text=l["materia"]
 
                 n=ET.SubElement(nodo_lez,"docente")
                 n.text=l["docente"]
