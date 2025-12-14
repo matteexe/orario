@@ -1,6 +1,7 @@
 from flask import Flask,request,Response
 import tempfile,os
 from parser_orario import leggi_pdf_orario,genera_xml
+import os
 
 app=Flask(__name__)
 xml_mem=None
@@ -48,4 +49,5 @@ def download():
                     headers={"Content-Disposition":"attachment; filename=orario.xml"})
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0",port=8000, )
+    port=int(os.environ.get("PORT",8000))
+    app.run(host="0.0.0.0",port=port)
