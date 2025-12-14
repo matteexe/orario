@@ -1,5 +1,6 @@
 import pdfplumber
 import xml.etree.ElementTree as ET
+from collections import defaultdict
 
 GIORNI=["LUN","MAR","MER","GIO","VEN","SAB"]
 GIORNI_NUM={"LUN":1,"MAR":2,"MER":3,"GIO":4,"VEN":5,"SAB":6}
@@ -11,8 +12,8 @@ def separa_compresenza(raw):
     if "-" in raw:
         parti=[p.strip() for p in raw.split("-") if p.strip()]
         if len(parti)>=2:
-            return parti[0],parti[1],True
-    return raw,"",False
+            return parti[0],parti[1]
+    return raw,None
 
 def leggi_pdf_orario(percorso):
     lezioni=[]
@@ -74,7 +75,7 @@ def leggi_pdf_orario(percorso):
                             docente_raw=linee[1] if len(linee)>=2 else ""
                             aula=" ".join(linee[2:]) if len(linee)>=3 else ""
 
-                            docente,doc_comp,flag=separa_compresenza(docente_raw)
+                            docente,doc_comp=separa_compresenza(docente_raw)
 
                             if len(linee)==1:
                                 parziali[(classe,giorno,ora)]=linee
@@ -86,15 +87,11 @@ def leggi_pdf_orario(percorso):
                                 "classe":classe,
                                 "giorno":giorno,
                                 "ora":ora,
-                                "materia":materia,
+                                "matera":materia,
                                 "docente":docente,
-                                "compresenza":"True" if flag else "False",
+                                "compresenza1":doc_comp if doc_comp else "no",
                                 "aula":aula
                             }
-
-                            if flag:
-                                dati["docente_compresenza"]=doc_comp
-
                             lezioni.append(dati)
 
                             if ora>1 and chiave_prec in parziali:
@@ -102,39 +99,48 @@ def leggi_pdf_orario(percorso):
                                     "classe":classe,
                                     "giorno":giorno,
                                     "ora":ora-1,
-                                    "materia":materia,
+                                    "matera":materia,
                                     "docente":docente,
-                                    "compresenza":"True" if flag else "False",
+                                    "compresenza1":doc_comp if doc_comp else "no",
                                     "aula":aula
                                 }
-
-                                if flag:
-                                    dup["docente_compresenza"]=doc_comp
-
                                 lezioni.append(dup)
                                 parziali.pop(chiave_prec,None)
 
     return lezioni
 
 def genera_xml(lezioni):
-    root=ET.Element("orario")
-
-    lezioni.sort(key=lambda x:(x["classe"],x["giorno"],x["ora"]))
+    root=ET.Element("classi")
+    raggr=defaultdict(lambda:defaultdict(list))
 
     for l in lezioni:
-        attr={
-            "classe":l["classe"],
-            "giorno":str(l["giorno"]),
-            "ora":str(l["ora"]),
-            "materia":l["materia"],
-            "docente":l["docente"],
-            "compresenza":l["compresenza"],
-            "aula":l["aula"]
-        }
+        raggr[l["classe"]][l["giorno"]].append(l)
 
-        if l["compresenza"]=="True":
-            attr["docente_compresenza"]=l["docente_compresenza"]
+    for classe in sorted(raggr.keys()):
+        nodo_classe=ET.SubElement(root,"classe",{"nome":classe})
 
-        ET.SubElement(root,"lezione",attr)
+        for giorno in sorted(raggr[classe].keys()):
+            nodo_giorno=ET.SubElement(nodo_classe,"giorno",{"nome":str(giorno)})
+
+            lista=raggr[classe][giorno]
+            lista.sort(key=lambda x:x["ora"])
+
+            for l in lista:
+                nodo_lez=ET.SubElement(nodo_giorno,"lezione")
+
+                n=ET.SubElement(nodo_lez,"ora")
+                n.text=str(l["ora"])
+
+                n=ET.SubElement(nodo_lez,"matera")
+                n.text=l["matera"]
+
+                n=ET.SubElement(nodo_lez,"docente")
+                n.text=l["docente"]
+
+                n=ET.SubElement(nodo_lez,"compresenza1")
+                n.text=l["compresenza1"]
+
+                n=ET.SubElement(nodo_lez,"aula")
+                n.text=l["aula"]
 
     return ET.tostring(root,encoding="utf-8",xml_declaration=True).decode("utf-8")
