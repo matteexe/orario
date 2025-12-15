@@ -4,7 +4,7 @@ from parser_orario import leggi_pdf_orario, genera_xml
 
 app = Flask(__name__)
 xml_mem = None
-VERSIONE = "v1.0.0"
+VERSIONE = "v0.0.5"
 
 @app.route("/", methods=["GET", "POST"])
 def index():
