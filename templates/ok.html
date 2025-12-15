@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Completato</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<main>
+  <div class="card">
+    <h1>Parsing completato</h1>
+    <p>Lezioni trovate: <b>{{ n }}</b></p>
+    <p><a href="/download">Scarica XML</a></p>
+  </div>
+</main>
+
+<footer>
+  <span>Orario Parser {{ versione }}</span> ·
+  <a href="https://github.com/matteexe/orario" target="_blank">GitHub</a>
+</footer>
+
+</body>
+</html
