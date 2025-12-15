@@ -4,17 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Da PDF a XML</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1">
 </head>
 <body>
 
 <main>
   <div class="card">
+
     <h1>Converti Orario PDF → XML</h1>
-    <form method="post" enctype="multipart/form-data">
-      <input type="file" name="pdf" accept="application/pdf" required>
-      <button type="submit">Converti</button>
+
+    <!-- FORM -->
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+
+      <!-- Bottone upload custom -->
+      <label for="pdfInput" class="file-btn" id="dropZone">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+          viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span>Seleziona PDF</span>
+      </label>
+
+      <!-- Input file reale -->
+      <input
+        type="file"
+        name="pdf"
+        id="pdfInput"
+        accept="application/pdf"
+        required
+        hidden
+      >
+
+      <!-- Nome file -->
+      <p id="fileName" class="file-name">Nessun file selezionato</p>
+
+      <!-- Bottone submit -->
+      <button type="submit" class="submit-btn">Converti</button>
     </form>
+
+    <!-- LOADER (nascosto di default) -->
+    <div id="loader" class="loader" style="display:none">
+      <div class="bat">
+        <div class="body"></div>
+        <div class="wing left"></div>
+        <div class="wing right"></div>
+      </div>
+      <p>Conversione in corso…</p>
+    </div>
+
   </div>
 </main>
 
@@ -22,6 +64,60 @@
   <span>Orario Parser {{ versione }}</span> ·
   <a href="https://github.com/matteexe/orario" target="_blank">GitHub</a>
 </footer>
+
+<!-- SCRIPT -->
+  <script>
+  const form = document.getElementById("uploadForm");
+  const loader = document.getElementById("loader");
+  const fileInput = document.getElementById("pdfInput");
+  const fileName = document.getElementById("fileName");
+  const dropZone = document.getElementById("dropZone");
+
+  /* Loader */
+  form.addEventListener("submit", function () {
+    if (!fileInput.files || fileInput.files.length === 0) return;
+    form.style.display = "none";
+    loader.style.display = "flex";
+  });
+
+  /* Mostra nome file */
+  fileInput.addEventListener("change", () => {
+    fileName.textContent = fileInput.files.length
+      ? fileInput.files[0].name
+      : "Nessun file selezionato";
+  });
+
+  /* === DRAG & DROP === */
+
+  // quando trascini sopra
+  dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault(); // fondamentale
+    dropZone.classList.add("dragover");
+  });
+
+  // quando esci
+  dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("dragover");
+  });
+
+  // quando rilasci
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+
+    const files = e.dataTransfer.files;
+    if (!files.length) return;
+
+    // accetta solo PDF
+    if (files[0].type !== "application/pdf") {
+      alert("Carica solo file PDF");
+      return;
+    }
+
+    fileInput.files = files;
+    fileName.textContent = files[0].name;
+  });
+  </script>
 
 </body>
 </html>
