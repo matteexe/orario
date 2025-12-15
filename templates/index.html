@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Da PDF a XML</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<main>
+  <div class="card">
+    <h1>Converti Orario PDF → XML</h1>
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="pdf" accept="application/pdf" required>
+      <button type="submit">Converti</button>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <span>Orario Parser {{ versione }}</span> ·
+  <a href="https://github.com/matteexe/orario" target="_blank">GitHub</a>
+</footer>
+
+</body>
+</html>
