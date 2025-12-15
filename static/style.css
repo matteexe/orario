@@ -8,8 +8,8 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  background:#0f172a;
-  color:#e5e7eb;
+  background:#020617; /* nero/blu scuro */
+  color:#d1fae5;      /* verde chiarissimo */
 }
 
 main{
@@ -23,16 +23,18 @@ main{
 .card{
   width:100%;
   max-width:420px;
-  background:#020617;
+  background:#010409;
   padding:1.5rem;
   border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  box-shadow:0 0 30px rgba(0,255,102,.15);
+  border:1px solid rgba(0,255,102,.15);
 }
 
 h1{
   margin-top:0;
   font-size:1.4rem;
   text-align:center;
+  color:#00ff66;
 }
 
 form{
@@ -41,50 +43,151 @@ form{
   gap:1rem;
 }
 
-input[type=file]{
-  background:#020617;
-  border:1px solid #334155;
-  padding:.6rem;
-  border-radius:8px;
-  color:#e5e7eb;
-}
-
-button{
-  padding:.7rem;
-  border:none;
-  border-radius:10px;
-  background:#38bdf8;
-  color:#020617;
-  font-weight:600;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#0ea5e9;
-}
-
 p{
   text-align:center;
 }
 
 a{
-  color:#38bdf8;
+  color:#00ff66;
   text-decoration:none;
 }
 
 a:hover{
   text-decoration:underline;
+  color:#00cc55;
 }
 
 footer{
   padding:.7rem;
   text-align:center;
   font-size:.85rem;
-  background:#020617;
-  border-top:1px solid #1e293b;
+  background:#010409;
+  border-top:1px solid rgba(0,255,102,.15);
+  color:#86efac;
 }
 
 @media (max-width:480px){
   h1{font-size:1.2rem;}
   .card{padding:1.2rem;}
+}
+
+/* ===== Loader ===== */
+
+.hidden{
+  display:none;
+}
+
+.loader{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1rem;
+  margin-top:1rem;
+}
+
+.loader p{
+  font-size:.95rem;
+  opacity:.85;
+  color:#86efac;
+}
+
+/* Loader from uiverse.io/andrew-manzyk (verde) */
+.bat{
+  position:relative;
+  width:60px;
+  height:30px;
+}
+
+.bat .body{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:14px;
+  height:14px;
+  background:#00ff66;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 12px rgba(0,255,102,.6);
+}
+
+.bat .wing{
+  position:absolute;
+  top:50%;
+  width:30px;
+  height:14px;
+  background:#00ff66;
+  border-radius:14px 14px 0 0;
+  transform-origin:0 50%;
+  animation:flap 0.6s ease-in-out infinite;
+}
+
+.bat .wing.left{
+  right:50%;
+  transform-origin:100% 50%;
+}
+
+.bat .wing.right{
+  left:50%;
+}
+
+@keyframes flap{
+  0%,100%{transform:rotate(20deg);}
+  50%{transform:rotate(-20deg);}
+}
+
+/* ===== Upload Button ===== */
+
+.file-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+  padding:.7rem;
+  border-radius:10px;
+  background:#010409;
+  border:1px dashed #00ff66;
+  color:#00ff66;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.file-btn:hover{
+  background:rgba(0,255,102,.05);
+  border-color:#00cc55;
+  color:#00cc55;
+}
+
+.file-btn.dragover{
+  background:rgba(0,255,102,.15);
+  border-color:#00ff66;
+  color:#00ff66;
+}
+
+.file-btn svg{
+  stroke:currentColor;
+}
+
+.file-name{
+  font-size:.85rem;
+  text-align:center;
+  opacity:.85;
+  color:#86efac;
+}
+
+/* ===== Submit ===== */
+
+.submit-btn{
+  padding:.7rem;
+  border:none;
+  border-radius:10px;
+  background:#00ff66;
+  color:#010409;
+  font-weight:600;
+  cursor:pointer;
+  transition:background .2s ease, box-shadow .2s ease;
+}
+
+.submit-btn:hover{
+  background:#00cc55;
+  box-shadow:0 0 12px rgba(0,255,102,.5);
 }
