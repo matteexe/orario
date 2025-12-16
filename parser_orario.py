@@ -18,16 +18,14 @@ def normalizza_classe(nome):
         nome=nome.split(" - ",1)[0].strip()
     return nome
 
+##attualmente non utilizzato
 def split_cognome_nome(nominativo):
-    """Divide un nominativo in cognome e nome. Es: 'Rossi M.' -> ('Rossi', 'M.')"""
     nominativo=pulisci(nominativo)
     if not nominativo:
         return "",""
     parti=nominativo.split()
     if len(parti)<2:
         return nominativo,""
-    # Cognome: tutte le parti tranne l'ultima
-    # Nome: ultima parte (di solito iniziale)
     return " ".join(parti[:-1]),parti[-1]
 
 def docente_valido(s):
@@ -35,7 +33,6 @@ def docente_valido(s):
     return bool(RE_DOCENTE.match(s))
 
 def scegli_docente_sostituto(docente_raw):
-    """Gestisce docenti con parentesi per sostituzioni"""
     s=pulisci(docente_raw)
     m=RE_PAREN.match(s)
     if not m:
@@ -48,36 +45,44 @@ def scegli_docente_sostituto(docente_raw):
     return fuori if fuori else s
 
 def separa_docenti(docente_raw):
-    """Separa il docente principale dai docenti in compresenza"""
-    base=scegli_docente_sostituto(docente_raw)
+    s=pulisci(docente_raw)
+    if not s:
+        return []
+
+    m=re.search(r"\(([^()]*)\)",s)
+    if m:
+        interno=pulisci(m.group(1))
+        if docente_valido(interno):
+            principale=interno
+            dopo=s[m.end():]
+            compresenze=[]
+            for parte in dopo.split(" - "):
+                nome=pulisci(parte)
+                if nome and docente_valido(nome):
+                    compresenze.append(nome)
+            if compresenze:
+                return [principale]+compresenze
+            return [principale]
+
+    base=scegli_docente_sostituto(s)
     if not base:
         return []
     if " - " in base:
-        parti=[p.strip() for p in base.split(" - ") if p.strip()]
-        return parti
+        return [p.strip() for p in base.split(" - ") if p.strip()]
     return [base]
 
 def pulisci_aula(aula_raw):
-    """Pulisce il nome dell'aula rimuovendo Lab. Mobile e parti dopo trattini"""
     if not aula_raw:
         return ""
-
-    aula = pulisci(aula_raw)
-
-    # Rimuove "Lab. Mobile" seguito da numero o spazi
-    # Es: "Lab. Mobile 1 - T5" -> "T5"
+    aula=pulisci(aula_raw)
     if "Lab. Mobile" in aula:
-        parts = aula.split(" - ")
-        if len(parts) > 1:
-            aula = parts[-1].strip()
+        parts=aula.split(" - ")
+        if len(parts)>1:
+            aula=parts[-1].strip()
         else:
-            aula = re.sub(r'Lab\.\s*Mobile\s*\d*', '', aula).strip()
-
-    # Rimuove tutto dopo il trattino
-    # Es: "S6 - Palestra" -> "S6"
+            aula=re.sub(r'Lab\.\s*Mobile\s*\d*','',aula).strip()
     if " - " in aula:
-        aula = aula.split(" - ")[0].strip()
-
+        aula=aula.split(" - ")[0].strip()
     return aula
 
 def leggi_pdf_orario(percorso):
@@ -150,7 +155,6 @@ def leggi_pdf_orario(percorso):
                             docente_principale=docenti[0] if len(docenti)>=1 else ""
                             compresenze=docenti[1:] if len(docenti)>1 else []
 
-                            cogn_doc,nome_doc=split_cognome_nome(docente_principale)
                             aula=pulisci_aula(aula_raw)
 
                             dati={
@@ -158,8 +162,7 @@ def leggi_pdf_orario(percorso):
                                 "giorno":giorno,
                                 "ora":ora,
                                 "materia":materia,
-                                "cognome_docente":cogn_doc,
-                                "nome_docente":nome_doc,
+                                "docente":docente_principale,
                                 "compresenze":compresenze,
                                 "aula":aula
                             }
@@ -199,23 +202,16 @@ def genera_xml(lezioni,classi=None):
                 n=ET.SubElement(nodo_lez,"materia")
                 n.text=l["materia"]
 
-                n=ET.SubElement(nodo_lez,"cognome_docente")
-                n.text=l["cognome_docente"]
+                n=ET.SubElement(nodo_lez,"docente")
+                n.text=l["docente"]
 
-                n=ET.SubElement(nodo_lez,"nome_docente")
-                n.text=l["nome_docente"]
-
-                # Aggiungi sempre 4 compresenze (con 0 se non presenti)
-                for i in range(1, 5):
-                    if i-1 < len(l["compresenze"]):
-                        cogn, nome = split_cognome_nome(l["compresenze"][i-1])
+                for i in range(1,5):
+                    if i-1<len(l["compresenze"]):
+                        valore=l["compresenze"][i-1]
                     else:
-                        cogn, nome = "0", "0"
-
-                    n=ET.SubElement(nodo_lez,f"cognome_compresenza{i}")
-                    n.text=cogn
-                    n=ET.SubElement(nodo_lez,f"nome_compresenza{i}")
-                    n.text=nome
+                        valore="NO"
+                    n=ET.SubElement(nodo_lez,f"compresenza{i}")
+                    n.text=valore
 
                 n=ET.SubElement(nodo_lez,"aula")
                 n.text=l["aula"]
