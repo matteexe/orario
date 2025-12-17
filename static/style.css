@@ -397,4 +397,3 @@ footer {
 @media (min-width:900px){.upload-grid{grid-template-columns:1fr 1fr}}
 .upload-block{display:flex;flex-direction:column;gap:10px}
 .upload-title{margin:0}
-
