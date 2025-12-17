@@ -8,6 +8,7 @@ GIORNI_NUM={"LUN":1,"MAR":2,"MER":3,"GIO":4,"VEN":5,"SAB":6}
 
 RE_PAREN=re.compile(r"^(.*?)\((.*?)\)\s*$")
 RE_DOCENTE=re.compile(r"^[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ''\-]+(?:\s+[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ''\-]+)*\s+[A-Z](?:\.[A-Z])*\.$")
+RE_SIGLA=re.compile(r"([A-Za-z])\s*-\s*(\d)")
 
 def pulisci(t):
     return (t or "").strip()
@@ -16,6 +17,7 @@ def normalizza_classe(nome):
     nome=pulisci(nome)
     if " - " in nome:
         nome=nome.split(" - ",1)[0].strip()
+    nome=RE_SIGLA.sub(r"\1\2",nome)
     return nome
 
 ##attualmente non utilizzato
@@ -83,6 +85,7 @@ def pulisci_aula(aula_raw):
             aula=re.sub(r'Lab\.\s*Mobile\s*\d*','',aula).strip()
     if " - " in aula:
         aula=aula.split(" - ")[0].strip()
+    aula=RE_SIGLA.sub(r"\1\2",aula)
     return aula
 
 def leggi_pdf_orario(percorso):
