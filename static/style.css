@@ -392,3 +392,9 @@ footer {
         padding: 0.875rem 1.5rem;
     }
 }
+
+.upload-grid{display:grid;gap:18px;margin-top:18px}
+@media (min-width:900px){.upload-grid{grid-template-columns:1fr 1fr}}
+.upload-block{display:flex;flex-direction:column;gap:10px}
+.upload-title{margin:0}
+
