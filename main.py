@@ -6,27 +6,43 @@ app=Flask(__name__)
 LEZIONI=[]
 VERSIONE="v0.1.0"
 
+def _salva_pdf(fs,tmpdir,filename):
+    if not fs or not fs.filename:
+        return None
+    if not fs.filename.lower().endswith(".pdf"):
+        return None
+    try:
+        pos=fs.stream.tell()
+        head=fs.stream.read(5)
+        fs.stream.seek(pos)
+    except Exception:
+        return None
+    if head!=b"%PDF-":
+        return None
+    path=os.path.join(tmpdir,filename)
+    fs.save(path)
+    if not os.path.exists(path) or os.path.getsize(path)==0:
+        return None
+    return path
+
 @app.route("/",methods=["GET","POST"])
 def index():
     global LEZIONI
     if request.method=="GET":
         return render_template("index.html",versione=VERSIONE)
 
-    if "pdf1" not in request.files or "pdf2" not in request.files:
-        return "Devi caricare entrambi i file PDF",400
-
-    f1=request.files["pdf1"]
-    f2=request.files["pdf2"]
-    if not f1.filename or not f2.filename:
-        return "File non valido",400
+    f1=request.files.get("pdf1")
+    f2=request.files.get("pdf2")
 
     with tempfile.TemporaryDirectory() as tmp:
-        p1=os.path.join(tmp,"orario1.pdf")
-        p2=os.path.join(tmp,"orario2.pdf")
-        f1.save(p1)
-        f2.save(p2)
-        lezioni1=leggi_pdf_orario(p1)
-        lezioni2=leggi_pdf_orario(p2)
+        p1=_salva_pdf(f1,tmp,"orario1.pdf")
+        p2=_salva_pdf(f2,tmp,"orario2.pdf")
+
+        if not p1 and not p2:
+            return "Carica almeno un PDF valido",400
+
+        lezioni1=leggi_pdf_orario(p1) if p1 else []
+        lezioni2=leggi_pdf_orario(p2) if p2 else []
 
     lezioni=lezioni1+lezioni2
     if not lezioni:
