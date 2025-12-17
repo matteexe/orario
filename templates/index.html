@@ -1,36 +1,51 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orario Parser</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orario Parser</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
 </head>
 <body>
-    <div class="loading" id="loading">
-        <div class="loader"></div>
-    </div>
+  <div class="loading" id="loading">
+    <div class="loader"></div>
+  </div>
 
-    <div class="container">
-        <h1>Orario Parser</h1>
-        <p>Carica il file PDF dell'orario scolastico per iniziare l'elaborazione.</p>
+  <div class="container">
+    <h1>Orario Parser</h1>
+    <p>Carica due file PDF dell'orario scolastico per unirli in un unico output.</p>
 
-        <form method="POST" enctype="multipart/form-data" id="uploadForm">
-            <label class="upload-area" id="uploadArea">
-                <div class="upload-icon"></div>
-                <div class="upload-text">
-                    <strong>Trascina il PDF qui o clicca per selezionare</strong>
-                    <small>Supporta file PDF fino a 10MB</small>
-                </div>
-                <input type="file" name="pdf" accept=".pdf" required id="fileInput">
-            </label>
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+      <div class="upload-grid">
+        <div class="upload-block">
+          <h2 class="upload-title">Orario 1</h2>
+          <label class="upload-area" id="uploadArea1">
+            <div class="upload-icon"></div>
+            <div class="upload-text">
+              <strong>Trascina il PDF qui o clicca per selezionare</strong>
+            </div>
+            <input type="file" name="pdf1" accept=".pdf" required id="fileInput1">
+          </label>
+        </div>
 
-            <button type="submit">Continua</button>
-        </form>
+        <div class="upload-block">
+          <h2 class="upload-title">Orario 2</h2>
+          <label class="upload-area" id="uploadArea2">
+            <div class="upload-icon"></div>
+            <div class="upload-text">
+              <strong>Trascina il PDF qui o clicca per selezionare</strong>
+            </div>
+            <input type="file" name="pdf2" accept=".pdf" required id="fileInput2">
+          </label>
+        </div>
+      </div>
 
-        <footer>Orario Parser {{ versione }}</footer>
-    </div>
+      <button type="submit">Continua</button>
+    </form>
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <footer>Orario Parser {{ versione }}</footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
