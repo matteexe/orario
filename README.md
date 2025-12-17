@@ -86,7 +86,7 @@ L'applicazione è configurata per il deployment su piattaforme cloud.  La porta 
 
 ## 📌 Versione
 
-Versione corrente: **v0.0.6**
+Versione corrente: **v0.1.0**
 
 ## 👤 Autore
 

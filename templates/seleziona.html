@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleziona classi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1">
+</head>
+<script src="{{ url_for('static',filename='app.js') }}"></script>
+<body>
+    <div class="loading" id="loading">
+        <div class="loader"></div>
+    </div>
+
+
+<div class="container seleziona-wrapper">
+
+    <h1>Seleziona le classi</h1>
+    <p>Scegli se includere tutte le classi oppure solo quelle di tuo interesse.</p>
+
+    <form method="POST" action="{{ url_for('download') }}">
+
+        <div class="opzioni">
+            <label class="opzione">
+                <input type="checkbox" id="tutte" name="tutte" value="1" checked>
+                Tutte le classi
+            </label>
+        </div>
+
+        <div class="divisore"></div>
+
+        <div class="classi-box">
+            {% for classe in classi %}
+                <label class="classe-item">
+                    <input type="checkbox" name="classi" value="{{ classe }}">
+                    <span>{{ classe }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="azioni">
+            <button type="submit">Scarica XML</button>
+            <a href="{{ url_for('materie_txt') }}" class="link-bottone">Scarica materie (.txt)</a>
+        </div>
+
+    </form>
+
+    <footer>Orario Parser {{ versione }}</footer>
+
+</div>
+
+</body>
+</html>
