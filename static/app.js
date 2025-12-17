@@ -115,4 +115,3 @@ document.addEventListener('DOMContentLoaded',function(){
 
   document.querySelectorAll('.upload-area').forEach(bindDropZone);
 });
-
