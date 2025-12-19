@@ -1,153 +1,433 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orario Parser</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.container{background:rgba(30,30,30,.95);border-radius:24px;padding:48px 40px;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);margin:0 auto}
-.header{text-align:center;margin-bottom:16px}
-.header h1{color:#fff;font-size:32px;font-weight:700;margin-bottom:8px}
-.header p{color:#888;font-size:15px;line-height:1.6}
-.upload-section{margin-top:40px}
-.section-title{color:#fff;font-size:20px;font-weight:600;margin-bottom:20px}
-.upload-box{background:rgba(20,20,20,.8);border:2px dashed rgba(33,150,243,.5);border-radius:16px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .3s ease;margin-bottom:24px;position:relative;display:block;width:100%}
-.upload-box:hover{background:rgba(25,25,25,.9);border-color:rgba(33,150,243,.8);transform:translateY(-2px)}
-.upload-box.dragover{transform:translateY(-2px) scale(1.02);border-color:rgba(33,150,243,1);background:rgba(33,150,243,.1)}
-.upload-box.has-file{border-color:rgba(76,175,80,.6);background:rgba(76,175,80,.05)}
-.upload-icon{width:64px;height:64px;background:linear-gradient(135deg,#2196F3 0%,#21CBF3 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;transition:all .3s ease}
-.upload-icon svg{width:32px;height:32px;fill:#fff}
-.upload-text{color:#fff;font-size:15px;font-weight:500;margin-bottom:4px;transition:color .3s ease}
-.upload-hint{color:#888;font-size:13px;transition:opacity .3s ease}
-.file-name{display:none;color:#4CAF50;font-size:14px;margin-top:12px;font-weight:500}
-.upload-box.has-file .file-name{display:block}
-.upload-box.has-file .upload-icon{background:linear-gradient(135deg,#4CAF50 0%,#8BC34A 100%);animation:successPulse .5s ease}
-@keyframes successPulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
-.upload-box.has-file .upload-text{color:#4CAF50}
-.upload-box.has-file .upload-hint{opacity:0;height:0;overflow:hidden}
-input[type=file]{display:none}
-.continue-btn{width:100%;background:linear-gradient(135deg,#2196F3 0%,#21CBF3 100%);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s ease;margin-top:32px;display:flex;align-items:center;justify-content:center;gap:8px}
-.continue-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(33,150,243,.4)}
-.continue-btn:disabled{background:rgba(100,100,100,.3);cursor:not-allowed;transform:none}
-.continue-btn svg{width:20px;height:20px;fill:#fff}
-.footer{text-align:center;margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.1)}
-.footer p{color:#666;font-size:13px}
-.processing{display:none;text-align:center;margin-top:20px}
-.processing.active{display:block}
-.spinner{border:3px solid rgba(33,150,243,.3);border-top:3px solid #2196F3;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 12px}
-@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-.processing-text{color:#2196F3;font-size:14px}
-@media (max-width:640px){.container{padding:32px 24px}.header h1{font-size:26px}.upload-box{padding:32px 16px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orario Parser</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(30, 30, 30, 0.95);
+      border-radius: 24px;
+      padding: 48px 40px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      color: #fff;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #888;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .upload-section {
+      margin-top: 40px;
+    }
+
+    .section-title {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .upload-box {
+      background: rgba(20, 20, 20, 0.8);
+      border: 2px dashed rgba(33, 150, 243, 0.5);
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 24px;
+      position: relative;
+      display: block;
+      width: 100%;
+    }
+
+    .upload-box:hover {
+      background: rgba(25, 25, 25, 0.9);
+      border-color: rgba(33, 150, 243, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .upload-box.dragover {
+      transform: translateY(-2px) scale(1.02);
+      border-color: rgba(33, 150, 243, 1);
+      background: rgba(33, 150, 243, 0.1);
+    }
+
+    .upload-box.has-file {
+      border-color: rgba(76, 175, 80, 0.6);
+      background: rgba(76, 175, 80, 0.05);
+    }
+
+    .upload-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      transition: all 0.3s ease;
+    }
+
+    .upload-icon svg {
+      width: 32px;
+      height: 32px;
+      fill: #fff;
+    }
+
+    .upload-text {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .upload-hint {
+      color: #888;
+      font-size: 13px;
+      transition: opacity 0.3s ease;
+    }
+
+    .file-name {
+      display: none;
+      color: #4CAF50;
+      font-size: 14px;
+      margin-top: 12px;
+      font-weight: 500;
+    }
+
+    .upload-box.has-file .file-name {
+      display: block;
+    }
+
+    .upload-box.has-file .upload-icon {
+      background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+      animation: successPulse 0.5s ease;
+    }
+
+    @keyframes successPulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .upload-box.has-file .upload-text {
+      color: #4CAF50;
+    }
+
+    .upload-box.has-file .upload-hint {
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .continue-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .continue-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
+    }
+
+    .continue-btn:disabled {
+      background: rgba(100, 100, 100, 0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .continue-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: #fff;
+    }
+
+    .processing {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .processing.active {
+      display: block;
+    }
+
+    .spinner {
+      border: 3px solid rgba(33, 150, 243, 0.3);
+      border-top: 3px solid #2196F3;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .processing-text {
+      color: #2196F3;
+      font-size: 14px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer p {
+      color: #666;
+      font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 32px 24px;
+      }
+
+      .header h1 {
+        font-size: 26px;
+      }
+
+      .upload-box {
+        padding: 32px 16px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="container">
-<div class="header">
-<h1>Orario Parser</h1>
-<p>Carica due file PDF dell'orario scolastico per unirli in un unico output.</p>
-</div>
-<form method="POST" enctype="multipart/form-data" id="uploadForm">
-<div class="upload-section">
-<h2 class="section-title">Orario 1</h2>
-<label for="file1" class="upload-box" id="uploadBox1">
-<div class="upload-icon">
-<svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
-</div>
-<p class="upload-text">Trascina il PDF qui o clicca per selezionare</p>
-<p class="upload-hint">Formato supportato: PDF</p>
-<p class="file-name" id="fileName1"></p>
-</label>
-<input type="file" id="file1" name="pdf1" accept="application/pdf,.pdf">
-</div>
-<div class="upload-section">
-<h2 class="section-title">Orario 2</h2>
-<label for="file2" class="upload-box" id="uploadBox2">
-<div class="upload-icon">
-<svg viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
-</div>
-<p class="upload-text">Trascina il PDF qui o clicca per selezionare</p>
-<p class="upload-hint">Formato supportato: PDF</p>
-<p class="file-name" id="fileName2"></p>
-</label>
-<input type="file" id="file2" name="pdf2" accept="application/pdf,.pdf">
-</div>
-<button type="submit" class="continue-btn" id="submitBtn" disabled>
-<span>Continua</span>
-<svg viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
-</button>
-<div class="processing" id="processing">
-<div class="spinner"></div>
-<p class="processing-text">Elaborazione in corso...</p>
-</div>
-</form>
-<div class="footer">
-<p>Orario Parser {{ versione }}</p>
-</div>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded',()=>{
-const file1Input=document.getElementById('file1')
-const file2Input=document.getElementById('file2')
-const uploadBox1=document.getElementById('uploadBox1')
-const uploadBox2=document.getElementById('uploadBox2')
-const fileName1=document.getElementById('fileName1')
-const fileName2=document.getElementById('fileName2')
-const submitBtn=document.getElementById('submitBtn')
-const uploadForm=document.getElementById('uploadForm')
-const processing=document.getElementById('processing')
+  <div class="container">
+    <div class="header">
+      <h1>Orario Parser</h1>
+      <p>Carica due file PDF dell'orario scolastico per unirli in un unico output.</p>
+    </div>
 
-const isPdf=f=>!!f&&(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'))
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
 
-function setBoxState(input,box,nameEl){
-if(input.files&&input.files.length>0){
-box.classList.add('has-file')
-nameEl.textContent='✓ '+input.files[0].name
-box.offsetHeight
-}else{
-box.classList.remove('has-file')
-nameEl.textContent=''
-}
-}
+      <div class="upload-section">
+        <h2 class="section-title">Orario 1</h2>
 
-function updateSubmitButton(){
-submitBtn.disabled=!(file1Input.files.length>0||file2Input.files.length>0)
-}
+        <label for="file1" class="upload-box" id="uploadBox1">
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+          </div>
 
-function bindFileInput(input,box,nameEl){
-input.addEventListener('change',()=>{
-setBoxState(input,box,nameEl)
-updateSubmitButton()
-})
-}
+          <p class="upload-text">Trascina il PDF qui o clicca per selezionare</p>
+          <p class="upload-hint">Formato supportato: PDF</p>
+          <p class="file-name" id="fileName1"></p>
+        </label>
 
-function bindDragAndDrop(box,input){
-const prevent=e=>{e.preventDefault();e.stopPropagation()}
-;['dragenter','dragover','dragleave','drop'].forEach(ev=>box.addEventListener(ev,prevent,false))
-;['dragenter','dragover'].forEach(ev=>box.addEventListener(ev,()=>box.classList.add('dragover'),false))
-;['dragleave','drop'].forEach(ev=>box.addEventListener(ev,()=>box.classList.remove('dragover'),false))
-box.addEventListener('drop',e=>{
-const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]
-if(!isPdf(f))return
-const dt=new DataTransfer()
-dt.items.add(f)
-input.files=dt.files
-input.dispatchEvent(new Event('change',{bubbles:true}))
-})
-}
+        <input type="file" id="file1" name="pdf1" accept="application/pdf,.pdf">
+      </div>
 
-uploadForm.addEventListener('submit',()=>{
-processing.classList.add('active')
-submitBtn.disabled=true
-})
+      <div class="upload-section">
+        <h2 class="section-title">Orario 2</h2>
 
-bindFileInput(file1Input,uploadBox1,fileName1)
-bindFileInput(file2Input,uploadBox2,fileName2)
-bindDragAndDrop(uploadBox1,file1Input)
-bindDragAndDrop(uploadBox2,file2Input)
-updateSubmitButton()
-})
-</script>
+        <label for="file2" class="upload-box" id="uploadBox2">
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+          </div>
+
+          <p class="upload-text">Trascina il PDF qui o clicca per selezionare</p>
+          <p class="upload-hint">Formato supportato: PDF</p>
+          <p class="file-name" id="fileName2"></p>
+        </label>
+
+        <input type="file" id="file2" name="pdf2" accept="application/pdf,.pdf">
+      </div>
+
+      <div class="upload-section">
+        <h2 class="section-title">Potenziamento</h2>
+
+        <label for="file3" class="upload-box" id="uploadBox3">
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+          </div>
+
+          <p class="upload-text">Trascina il PDF qui o clicca per selezionare</p>
+          <p class="upload-hint">Formato supportato: PDF</p>
+          <p class="file-name" id="fileName3"></p>
+        </label>
+
+        <input type="file" id="file3" name="pdf_potenziamento" accept="application/pdf,.pdf">
+      </div>
+
+      <button type="submit" class="continue-btn" id="submitBtn" disabled>
+        <span>Continua</span>
+        <svg viewBox="0 0 24 24">
+          <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+        </svg>
+      </button>
+
+      <div class="processing" id="processing">
+        <div class="spinner"></div>
+        <p class="processing-text">Elaborazione in corso...</p>
+      </div>
+
+    </form>
+
+    <div class="footer">
+      <p>Orario Parser {{ versione }}</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const file1Input = document.getElementById('file1');
+      const file2Input = document.getElementById('file2');
+      const file3Input = document.getElementById('file3');
+
+      const uploadBox1 = document.getElementById('uploadBox1');
+      const uploadBox2 = document.getElementById('uploadBox2');
+      const uploadBox3 = document.getElementById('uploadBox3');
+
+      const fileName1 = document.getElementById('fileName1');
+      const fileName2 = document.getElementById('fileName2');
+      const fileName3 = document.getElementById('fileName3');
+
+      const submitBtn = document.getElementById('submitBtn');
+      const uploadForm = document.getElementById('uploadForm');
+      const processing = document.getElementById('processing');
+
+      const isPdf = f =>
+        !!f && (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+
+      function setBoxState(input, box, nameEl) {
+        if (input.files && input.files.length > 0) {
+          box.classList.add('has-file');
+          nameEl.textContent = '✓ ' + input.files[0].name;
+          box.offsetHeight;
+        } else {
+          box.classList.remove('has-file');
+          nameEl.textContent = '';
+        }
+      }
+
+      function updateSubmitButton() {
+        const has1 = file1Input.files.length > 0;
+        const has2 = file2Input.files.length > 0;
+        const has3 = file3Input.files.length > 0;
+        submitBtn.disabled = !(has1 || has2 || has3);
+      }
+
+      function bindFileInput(input, box, nameEl) {
+        if (!input) return;
+
+        input.addEventListener('change', () => {
+          setBoxState(input, box, nameEl);
+          updateSubmitButton();
+        });
+      }
+
+      function bindDragAndDrop(box, input) {
+        if (!box || !input) return;
+
+        const prevent = e => {
+          e.preventDefault();
+          e.stopPropagation();
+        };
+
+        ['dragenter', 'dragover', 'dragleave', 'drop']
+          .forEach(ev => box.addEventListener(ev, prevent, false));
+
+        ['dragenter', 'dragover']
+          .forEach(ev => box.addEventListener(ev, () => box.classList.add('dragover'), false));
+
+        ['dragleave', 'drop']
+          .forEach(ev => box.classList.remove('dragover'));
+
+        box.addEventListener('drop', e => {
+          const f = e.dataTransfer?.files?.[0];
+          if (!isPdf(f)) return;
+
+          const dt = new DataTransfer();
+          dt.items.add(f);
+          input.files = dt.files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      }
+
+      uploadForm.addEventListener('submit', () => {
+        processing.classList.add('active');
+        submitBtn.disabled = true;
+      });
+
+      bindFileInput(file1Input, uploadBox1, fileName1);
+      bindFileInput(file2Input, uploadBox2, fileName2);
+      bindFileInput(file3Input, uploadBox3, fileName3);
+
+      bindDragAndDrop(uploadBox1, file1Input);
+      bindDragAndDrop(uploadBox2, file2Input);
+      bindDragAndDrop(uploadBox3, file3Input);
+
+      updateSubmitButton();
+    });
+  </script>
 </body>
 </html>
