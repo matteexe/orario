@@ -2,51 +2,155 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Seleziona classi</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1">
+    <title>Seleziona classi e download</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<script src="{{ url_for('static',filename='app.js') }}"></script>
 <body>
-    <div class="loading" id="loading">
-        <div class="loader"></div>
-    </div>
+<div class="page-wrapper">
+    <header class="header">
+        <h1 class="title">Esporta orario</h1>
+        <p class="subtitle">
+            Versione {{ versione }} – scegli se esportare tutte le classi o solo alcune,
+            e scarica i file generati.
+        </p>
+    </header>
 
+    <main class="content">
 
-<div class="container seleziona-wrapper">
-
-    <h1>Seleziona le classi</h1>
-    <p>Scegli se includere tutte le classi oppure solo quelle di tuo interesse.</p>
-
-    <form method="POST" action="{{ url_for('download') }}">
-
-        <div class="opzioni">
-            <label class="opzione">
-                <input type="checkbox" id="tutte" name="tutte" value="1" checked>
-                Tutte le classi
-            </label>
+        {# SE NON C’È NESSUN FILE DISPONIBILE #}
+        {% if not has_orario and not has_materie and not has_sostegno %}
+        <div class="card alert-card">
+            <h2 class="card-title">Nessun file disponibile</h2>
+            <p class="card-text">
+                Non è stato generato nessun XML. Torna alla pagina principale e carica almeno un PDF
+                (normale o potenziamento) per avviare il parsing.
+            </p>
+            <a href="{{ url_for('index') }}" class="btn secondary">← Torna alla pagina di upload</a>
         </div>
+        {% endif %}
 
-        <div class="divisore"></div>
+        {# BLOCCO ORARIO / MATERIE – SOLO SE È STATO GENERATO L’ORARIO/MATERIE #}
+        {% if has_orario or has_materie %}
+        <section class="card">
+            <h2 class="card-title">Esporta orario per classi</h2>
+            <p class="card-text">
+                Puoi esportare l’orario completo o selezionare solo alcune classi.
+            </p>
 
-        <div class="classi-box">
-            {% for classe in classi %}
-                <label class="classe-item">
-                    <input type="checkbox" name="classi" value="{{ classe }}">
-                    <span>{{ classe }}</span>
-                </label>
-            {% endfor %}
-        </div>
+            <form id="classiForm" method="post" action="{{ url_for('download') }}">
+                <div class="checkbox-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="tutte" name="tutte" checked>
+                        <span> Tutte le classi</span>
+                    </label>
+                </div>
 
-        <div class="azioni">
-            <button type="submit">Scarica XML</button>
-            <a href="{{ url_for('materie_txt') }}" class="link-bottone">Scarica materie (.txt)</a>
-        </div>
+                <div class="classi-box">
+                    {% for c in classi %}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="classi" value="{{ c }}">
+                        <span>{{ c }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
 
-    </form>
+                <div class="buttons-row">
+                    {% if has_orario %}
+                    <button type="submit" name="azione" value="orario" class="btn primary">
+                        Scarica orario (XML)
+                    </button>
+                    {% endif %}
 
-    <footer>Orario Parser {{ versione }}</footer>
+                    {% if has_materie %}
+                    <a href="{{ url_for('download_materie_txt') }}" class="btn secondary">
+                        Scarica materie (.txt)
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+        {% endif %}
 
+        {# BLOCCO POTENZIAMENTO / SOSTEGNO – SOLO SE È STATO GENERATO SOSTEGNO.XML #}
+        {% if has_sostegno %}
+        <section class="card">
+            <h2 class="card-title">Potenziamento</h2>
+            <p class="card-text">
+                Scaricare il file XML con le ore di potenziamento organizzate per docente.
+            </p>
+            <div class="buttons-row">
+                <a href="{{ url_for('download_sostegno') }}" class="btn primary">
+                    Scarica sostegno.xml
+                </a>
+            </div>
+        </section>
+        {% endif %}
+
+        <footer class="footer">
+            <a href="{{ url_for('index') }}" class="link-back">← Torna alla pagina principale</a>
+        </footer>
+    </main>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tutteCheckbox = document.getElementById('tutte');
+    const classiCheckboxes = document.querySelectorAll('input[name="classi"]');
+    const classiBox = document.querySelector('.classi-box');
+    const form = document.getElementById('classiForm');
+
+    function toggleClassiIndividuali(disabled) {
+        classiCheckboxes.forEach(cb => {
+            cb.disabled = disabled;
+            if (disabled) {
+                cb.checked = false;
+            }
+        });
+
+        if (classiBox) {
+            if (disabled) {
+                classiBox.classList.add('disabled');
+            } else {
+                classiBox.classList.remove('disabled');
+            }
+        }
+    }
+
+    if (tutteCheckbox) {
+        // stato iniziale
+        if (tutteCheckbox.checked) {
+            toggleClassiIndividuali(true);
+        }
+
+        tutteCheckbox.addEventListener('change', () => {
+            toggleClassiIndividuali(tutteCheckbox.checked);
+        });
+    }
+
+    classiCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            // se tocco le classi, tolgo il check da "tutte"
+            if (tutteCheckbox && cb.checked) {
+                tutteCheckbox.checked = false;
+                toggleClassiIndividuali(false);
+            }
+        });
+    });
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // se non è selezionato "tutte" e nessuna classe è spuntata, blocco il submit
+            const tutte = tutteCheckbox && tutteCheckbox.checked;
+            const anySelected = Array.from(classiCheckboxes).some(cb => cb.checked);
+
+            if (!tutte && !anySelected) {
+                e.preventDefault();
+                alert('Seleziona almeno una classe oppure lascia spuntato "Tutte le classi".');
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>
