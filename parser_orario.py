@@ -220,3 +220,73 @@ def genera_xml(lezioni,classi=None):
                 n.text=l["aula"]
 
     return ET.tostring(root,encoding="utf-8",xml_declaration=True).decode("utf-8")
+
+def leggi_pdf_potenziamento(percorso_pdf):
+    import pdfplumber
+    potenziamenti={}
+    with pdfplumber.open(percorso_pdf) as pdf:
+        for page in pdf.pages:
+            tables=page.extract_tables()
+            if not tables:
+                continue
+            tab=tables[0]
+            if len(tab)<3:
+                continue
+            header_times=tab[1]
+            time_indices=[i for i,c in enumerate(header_times) if c and "8.15" in c]
+            if not time_indices:
+                continue
+            giorno_idx_by_col={}
+            ora_by_col={}
+            for day_idx,start_col in enumerate(time_indices,start=1):
+                for offset in range(6):
+                    col=start_col+offset
+                    if col>=len(header_times):
+                        break
+                    giorno_idx_by_col[col]=day_idx
+                    ora_by_col[col]=offset+1
+            for row in tab[2:]:
+                docente=row[0]
+                if not docente:
+                    continue
+                if "(Sost.)" in docente:
+                    continue
+                docente=docente.strip()
+                for col_idx,cell in enumerate(row[1:],start=1):
+                    if col_idx not in giorno_idx_by_col:
+                        continue
+                    if not cell or "Potenz." not in cell:
+                        continue
+                    giorno_idx=giorno_idx_by_col[col_idx]
+                    ora=ora_by_col[col_idx]
+                    lines=[l.strip() for l in cell.split("\n") if l and l.strip()]
+                    aula=None
+                    for l in lines:
+                        if "Aula" in l:
+                            aula=l
+                            break
+                    if aula is None:
+                        aula="Aula Potenziamento"
+                    d_pot=potenziamenti.setdefault(docente,{})
+                    d_giorno=d_pot.setdefault(giorno_idx,[])
+                    d_giorno.append({"ora":ora,"classe":"Potenz.","aula":aula})
+    return potenziamenti
+
+def genera_xml_sostegno(potenziamenti):
+    import xml.etree.ElementTree as ET
+    root=ET.Element("docenti")
+    for docente in sorted(potenziamenti.keys()):
+        docente_el=ET.SubElement(root,"docente",{"nome":docente})
+        giorni=potenziamenti[docente]
+        for giorno_idx in sorted(giorni.keys()):
+            giorno_el=ET.SubElement(docente_el,"giorno",{"nome":str(giorno_idx)})
+            lezioni=sorted(giorni[giorno_idx],key=lambda x:x["ora"])
+            for lez in lezioni:
+                lez_el=ET.SubElement(giorno_el,"lezione")
+                ora_el=ET.SubElement(lez_el,"ora")
+                ora_el.text=str(lez["ora"])
+                classe_el=ET.SubElement(lez_el,"classe")
+                classe_el.text=lez["classe"]
+                aula_el=ET.SubElement(lez_el,"aula")
+                aula_el.text=lez["aula"]
+    return ET.tostring(root,encoding="utf-8",xml_declaration=True).decode("utf-8")
