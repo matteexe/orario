@@ -397,3 +397,149 @@ footer {
 @media (min-width:900px){.upload-grid{grid-template-columns:1fr 1fr}}
 .upload-block{display:flex;flex-direction:column;gap:10px}
 .upload-title{margin:0}
+
+/* Layout pagina selezione / export */
+
+.page-wrapper{
+    width:100%;
+    max-width:900px;
+    margin:0 auto;
+}
+
+.header{
+    margin-bottom:2rem;
+}
+
+.title{
+    font-size:1.8rem;
+    font-weight:700;
+    margin-bottom:0.25rem;
+    background:linear-gradient(135deg,var(--text),var(--muted));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    background-clip:text;
+}
+
+.subtitle{
+    font-size:0.95rem;
+    color:var(--muted);
+}
+
+.content{
+    display:flex;
+    flex-direction:column;
+    gap:1.5rem;
+}
+
+.card{
+    background:var(--card);
+    border-radius:20px;
+    border:1px solid var(--border);
+    padding:1.75rem;
+    box-shadow:0 12px 30px rgba(0,0,0,0.3);
+}
+
+.card-title{
+    font-size:1.2rem;
+    margin-bottom:0.5rem;
+}
+
+.card-text{
+    font-size:0.9rem;
+    color:var(--muted);
+    margin-bottom:1rem;
+}
+
+/* Checkbox e lista classi */
+
+.checkbox-row{
+    margin-bottom:0.75rem;
+}
+
+.checkbox-label{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-size:0.9rem;
+}
+
+.checkbox-label input[type="checkbox"]{
+    width:18px;
+    height:18px;
+}
+
+.classi-box{
+    margin-top:0.75rem;
+}
+
+/* Bottoni generici (riuso della palette esistente) */
+
+.btn{
+    padding:0.85rem 1.6rem;
+    border-radius:14px;
+    border:none;
+    font-size:0.9rem;
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    transition:all 0.25s ease;
+    letter-spacing:-0.01em;
+}
+
+.btn.primary{
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 4px 12px rgba(14,165,233,0.3);
+}
+
+.btn.primary:hover{
+    background:var(--accent-hover);
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(14,165,233,0.4);
+}
+
+.btn.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+}
+
+.btn.secondary:hover{
+    border-color:var(--accent);
+    background:rgba(255,255,255,0.05);
+    transform:translateY(-2px);
+}
+
+.buttons-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.75rem;
+    margin-top:1rem;
+}
+
+/* Footer link */
+
+.footer{
+    margin-top:2rem;
+    text-align:center;
+    font-size:0.85rem;
+    color:var(--muted);
+}
+
+.link-back{
+    color:var(--accent);
+    text-decoration:none;
+}
+
+.link-back:hover{
+    text-decoration:underline;
+}
+
+/* Card di avviso */
+
+.alert-card{
+    border-color:#f97316;
+}
